@@ -14,14 +14,15 @@ form_class = uic.loadUiType("Ui/coin_main.ui")[0]
 class CoinViewThread(QThread):  # 시그널 클래스
 
     # 시그널 함수 정의
-    coinDataSent = pyqtSignal(float, float, float, float, float, float, float, float, float)
+    coinDataSent = pyqtSignal(float, float, float, float, float, float, float, float)
+    alarmDataSent = pyqtSignal(float)  # 알람용 현재가격 시그널
 
     def __init__(self, ticker):
         super().__init__()
         self.ticker = ticker
         self.alive = True
 
-    def run(self, ticker):
+    def run(self):
         while self.alive:
             url = 'https://api.upbit.com/v1/ticker'
 
@@ -49,6 +50,8 @@ class CoinViewThread(QThread):  # 시그널 클래스
                                    float(prev_closing_price),
                                    float(signed_change_rate) )
 
+            self.alarmDataSent.emit(float(trade_price))
+
             time.sleep(1)
 
     def close(self):  # 프로그램 종료 없이 while문을 정지
@@ -67,12 +70,15 @@ class CoinWindow(QMainWindow, form_class):  # 슬롯 클래스
 
         self.cvt = CoinViewThread(ticker)  # 시그널 클래스로 객체 선언
         self.cvt.coinDataSent.connect(self.fillCoinData)
+        self.cvt.alarmDataSent.connect(self.alarmCheck)
         self.cvt.start()  # 시그널 함수의 스레드 시작
         self.coin_comboBox_setting()  # 콤보박스 초기화
 
+        self.alarmButton.clicked.connect(self.alarmButtonAction)
+
     def coin_comboBox_setting(self):
         tickerList = pyupbit.get_tickers(fiat="KRW")
-        print(tickerList)
+        # print(tickerList)
 
         coinTickerList = []
 
@@ -95,6 +101,7 @@ class CoinWindow(QMainWindow, form_class):  # 슬롯 클래스
         self.cvt.close()  # while문 종료
         self.cvt = CoinViewThread(coin_ticker)
         self.cvt.coinDataSent.connect(self.fillCoinData)
+        self.cvt.alarmDataSent.connect(self.alarmCheck)
         self.cvt.start()
 
 
@@ -119,6 +126,34 @@ class CoinWindow(QMainWindow, form_class):  # 슬롯 클래스
         else:
             self.coin_change_label.setStyleSheet("background-color:red;color:white;")
             self.price_coin_label.setStyleSheet("color:red;")
+
+    def alarmButtonAction(self):
+        self.alarmFlag = 0
+        if self.alarmButton.text() == '알람 시작':
+            self.alarmButton.setText('알람 중지')
+        else:
+            self.alarmButton.setText('알람 시작')
+
+    def alarmCheck(self, trade_price):
+
+        if self.alarmButton.text() == '알람 중지':
+            if self.alarm_price1.text() == '' or self.alarm_price2.text() == '':
+                if self.alarmFlag == 0:
+                    self.alarmFlag = 1
+                    QMessageBox.warning(self,'입력오류')
+                    self.alarmButton.setText("알람 시작")
+            else:
+                if self.alarmFlag == 0:
+                    alarm_price1 = float(self.alarm_price1.text())
+                    alarm_price2 = float(self.alarm_price1.text())
+
+                    if trade_price >= alarm_price1:
+                        QMessageBox.warning(self,"매도가격 도달", '매도하세요')
+                        self.alarmFlag = 1
+
+                    if trade_price <= alarm_price2:
+                        QMessageBox.warning(self, "매수가격 도달", '매수하세요')
+                        self.alarmFlag = 1
 
 
 if __name__ == "__main__":
