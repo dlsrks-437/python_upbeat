@@ -137,7 +137,7 @@ class CoinWindow(QMainWindow, form_class):  # 슬롯 클래스
     def alarmCheck(self, trade_price):
 
         if self.alarmButton.text() == '알람 중지':
-            if self.alarm_price1.text() == '' or self.alarm_price2.text() == '':
+            if self.alarm_price1.text() == '' and self.alarm_price2.text() == '':
                 if self.alarmFlag == 0:
                     self.alarmFlag = 1
                     QMessageBox.warning(self,'입력오류')
