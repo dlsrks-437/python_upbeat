@@ -63,7 +63,7 @@ class CoinWindow(QMainWindow, form_class):  # 슬롯 클래스
         self.statusBar().showMessage(' ver 0.5 ')
 
         self.cvt = CoinViewThread()  # 시그널 클래스로 객체 선언
-        self.cvt.coinDataSent.connect(self.fillCoinData())
+        self.cvt.coinDataSent.connect(self.fillCoinData)
         self.cvt.start()  # 시그널 함수의 스레드 시작
 
     #  시그얼클래스에서 보내중 코인정보를 ui에 출력해주는 슬롯 함수
@@ -73,10 +73,16 @@ class CoinWindow(QMainWindow, form_class):  # 슬롯 클래스
         self.coin_change_label.setText(f"{signed_change_rate:+ .2f}")  # 가격변화율 -> 소수 2자리까지
         self.rate_trade_label.setText(f"{acc_trade_volume_24h:, .4f} ")  # 거래량
         self.rate_price_label.setText (f"{acc_trade_price_24h:, .0f} ") # 거래금액
-        self.trade_volum_label.setText(f"{trade_volume:, .0f} 원")
-        self.price_high_label.setText(f"{high_price:, .0f} 원")
-        self.price_low_label.setText(f"{low_price:, .0f} 원")
-        self.price_end_label.setText(f"{prev_closing_price:, .0f} 원")
+        self.trade_volum_label.setText(f"{trade_volume:, .4f} 원")    # 최근 거래량
+        self.price_high_label.setText(f"{high_price:, .0f} 원")  # 고가
+        self.price_low_label.setText(f"{low_price:, .0f} 원")  # 저가
+        self.price_end_label.setText(f"{prev_closing_price:, .0f} 원")  #전일대비
+
+    def updatestyle(self):
+        if '-' in self.coin_change_label.text():
+            self.coin_change_label.setStyleSheet("background-color : blue; color : white")
+        else:
+            self.coin_change_label.setStyleSheet("background-color : red; color : white")
 
 
 if __name__ == "__main__":
