@@ -92,4 +92,4 @@ if __name__ == "__main__":
     sys.exit(app.exec_())
 
 
-
+print("ver 0.5")
