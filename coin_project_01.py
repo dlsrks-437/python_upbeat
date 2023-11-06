@@ -4,7 +4,7 @@ import time
 import requests
 
 from PyQt5 import uic
-from PyQt5.QtGui import QIcon
+# from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import  *
 from PyQt5.QtCore import *
 
@@ -13,7 +13,7 @@ form_class = uic.loadUiType("Ui/coin_main.ui")[0]
 class CoinViewThread(QThread):  # 시그널 클래스
 
     # 시그널 함수 정의
-    coinDataSent = pyqtSignal(float, float, float, float, float, float, float, float, float)
+    coinDataSent = pyqtSignal(float, float, float, float, float, float, float, float)
 
     def __init__(self):
         super().__init__()
@@ -69,14 +69,15 @@ class CoinWindow(QMainWindow, form_class):  # 슬롯 클래스
     #  시그얼클래스에서 보내중 코인정보를 ui에 출력해주는 슬롯 함수
     def fillCoinData(self, trade_price, acc_trade_volume_24h, acc_trade_price_24h, trade_volume,
                      high_price, low_price, prev_closing_price, signed_change_rate):
-        self.price_coin_label.setText(f"{trade_price:, .0f} 원")  # 현재가
-        self.coin_change_label.setText(f"{signed_change_rate:+ .2f}")  # 가격변화율 -> 소수 2자리까지
-        self.rate_trade_label.setText(f"{acc_trade_volume_24h:, .4f} ")  # 거래량
-        self.rate_price_label.setText (f"{acc_trade_price_24h:, .0f} ") # 거래금액
-        self.trade_volum_label.setText(f"{trade_volume:, .4f} 원")    # 최근 거래량
-        self.price_high_label.setText(f"{high_price:, .0f} 원")  # 고가
-        self.price_low_label.setText(f"{low_price:, .0f} 원")  # 저가
-        self.price_end_label.setText(f"{prev_closing_price:, .0f} 원")  #전일대비
+        self.price_coin_label.setText(f"{trade_price:,.0f} 원")  # 현재가
+        self.coin_change_label.setText(f"{signed_change_rate:+.2f}")  # 가격변화율 -> 소수 2자리까지
+        self.rate_trade_label.setText(f"{acc_trade_volume_24h:,.4f} ")  # 거래량
+        self.rate_price_label.setText (f"{acc_trade_price_24h:,.0f} ") # 거래금액
+        self.trade_volum_label.setText(f"{trade_volume:.4f} 원")    # 최근 거래량
+        self.price_high_label.setText(f"{high_price:,.0f} 원")  # 고가
+        self.price_low_label.setText(f"{low_price:,.0f} 원")  # 저가
+        self.price_end_label.setText(f"{prev_closing_price:,.0f} 원")  #전일대비
+        self.updatestyle()
 
     def updatestyle(self):
         if '-' in self.coin_change_label.text():
